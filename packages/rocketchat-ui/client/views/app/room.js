@@ -234,6 +234,8 @@ Template.room.helpers({
 
 let isSocialSharingOpen = false;
 let touchMoved = false;
+let lastTouchX = null;
+let lastTouchY = null;
 
 Template.room.events({
 	'click, touchend'(e, t) {
@@ -249,6 +251,11 @@ Template.room.events({
 	},
 
 	'touchstart .message'(e, t) {
+		const touches = e.originalEvent.touches;
+		if (touches && touches.length) {
+			lastTouchX = touches[0].pageX;
+			lastTouchY = touches[0].pagey;
+		}
 		touchMoved = false;
 		isSocialSharingOpen = false;
 		if (e.originalEvent.touches.length !== 1) {
@@ -343,7 +350,14 @@ Template.room.events({
 	},
 
 	'touchmove .message'(e, t) {
-		touchMoved = true;
+		const touches = e.originalEvent.touches;
+		if (touches && touches.length) {
+			const deltaX = Math.abs(lastTouchX - touches[0].pageX);
+			const deltaY = Math.abs(lastTouchY - touches[0].pageY);
+			if (deltaX > 5 || deltaY > 5) {
+				touchMoved = true;
+			}
+		}
 		return Meteor.clearTimeout(t.touchtime);
 	},
 
@@ -363,7 +377,7 @@ Template.room.events({
 	'click .unread-bar > button.jump-to'(e, t) {
 		const { _id } = t.data;
 		const room = RoomHistoryManager.getRoom(_id);
-		let message = room && readMessage.firstUnread.get();
+		let message = room && room.firstUnread.get();
 		if (message) {
 			return RoomHistoryManager.getSurroundingMessages(message, 50);
 		} else {
