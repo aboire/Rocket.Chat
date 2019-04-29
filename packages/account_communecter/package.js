@@ -20,8 +20,8 @@ Package.onUse(function(api) {
     'check'
   ]);
 
-  api.use('rocketchat:lib', 'server');
-	api.use('rocketchat:logger', 'server');
+  // api.use('rocketchat:lib', 'server');
+	// api.use('rocketchat:logger', 'server');
 
   api.add_files('server/config.js', 'server');
   api.add_files('client/config.js', 'client');
