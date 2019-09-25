@@ -2,9 +2,11 @@ import { Accounts } from 'meteor/accounts-base';
 // RocketChat.setUserAvatar
 // RocketChat.authz.addUserRoles
 import {
-addUserRoles,
 	setUserAvatar,
 } from '../../lib';
+import {
+	addUserRoles
+} from '../../authorization';
 Accounts.registerLoginHandler(function(loginRequest) {
 	if (loginRequest.user && loginRequest.user.email && loginRequest.password) {
 		loginRequest.email = loginRequest.user.email;
@@ -48,7 +50,7 @@ Accounts.registerLoginHandler(function(loginRequest) {
         //username ou emails
 
 			const newUser = {
-				_id:retourId,
+				_id: retourId,
 				username: response.data.account.username,
 				name: response.data.account.name,
 				emails: [{ address: response.data.account.email, verified: true }],

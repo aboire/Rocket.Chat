@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import mkdirp from 'mkdirp';
 import { Meteor } from 'meteor/meteor';
 import { TAPi18n } from 'meteor/tap:i18n';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
@@ -33,7 +34,7 @@ const writeToFile = function(fileName, content) {
 
 const createDir = function(folderName) {
 	if (!fs.existsSync(folderName)) {
-		fs.mkdirSync(folderName);
+		mkdirp.sync(folderName);
 	}
 };
 
