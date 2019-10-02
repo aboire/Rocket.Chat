@@ -230,7 +230,8 @@ this.Auth.loginWithPassword = function(user, password) {
 			roles.push('admin');
 		}
 
-		RocketChat.authz.addUserRoles(retourId, roles);
+		// RocketChat.authz.addUserRoles(retourId, roles);
+		addUserRoles(retourId, roles);
 	}
 
 
