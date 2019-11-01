@@ -360,7 +360,7 @@ class APIClass extends Restivus {
 
 		const self = this;
 
-		/* this.addRoute('login', { authRequired: false }, {
+		 this.addRoute('login', { authRequired: false }, {
 			post() {
 				const args = loginCompatibility(this.bodyParams);
 				const getUserInfo = self.getHelperMethod('getUserInfo');
@@ -409,20 +409,20 @@ class APIClass extends Restivus {
 						me: getUserInfo(this.user),
 					},
 				};
-
+				
 				const extraData = self._config.onLoggedIn && self._config.onLoggedIn.call(this);
-
+				
 				if (extraData != null) {
 					_.extend(response.data, {
 						extra: extraData,
 					});
 				}
-
+				
 				return response;
 			},
-		}); */
+		}); 
 
-		this.addRoute('login', {
+		/*this.addRoute('login', {
 			authRequired: false
 		}, {
 			post() {
@@ -454,8 +454,7 @@ class APIClass extends Restivus {
 					};
 				}
 
-				// Get the authenticated user
-				// TODO: Consider returning the user in Auth.loginWithPassword(), instead of fetching it again here
+
 				if (auth.userId && auth.authToken) {
 					const searchQuery = {};
 					searchQuery[self._config.auth.token] = Accounts._hashLoginToken(auth.authToken);
@@ -518,9 +517,10 @@ class APIClass extends Restivus {
 					});
 				}
 
+				console.log(response);
 				return response;
 			},
-		});
+		});*/
 
 		const logout = function() {
 			// Remove the given auth token from the user's account
