@@ -7,8 +7,9 @@ import {
 import {
 	addUserRoles
 } from '../../authorization';
-Accounts.registerLoginHandler(function(loginRequest) {
-	// console.log(loginRequest);
+Accounts.registerLoginHandler( 'login', function(loginRequest) {
+	//console.log('registerLoginHandler');
+	//console.log(loginRequest);
 	if (loginRequest.user && loginRequest.user.email && loginRequest.password) {
 		loginRequest.email = loginRequest.user.email;
 		loginRequest.pwd = loginRequest.password;
@@ -94,7 +95,11 @@ Accounts.registerLoginHandler(function(loginRequest) {
 		const stampedToken = Accounts._generateStampedLoginToken();
 		Meteor.users.update(userId,
         {$push: {'services.resume.loginTokens': stampedToken}}
-      );
+	  );
+	  hashedToken = Accounts._hashLoginToken(stampedToken.token);
+	  Accounts._insertHashedLoginToken(userId, {
+	  	hashedToken
+	  });
 		this.setUserId(userId);
 		const userR = Meteor.users.findOne({'_id':userId});
 		if (response.data.account.profilThumbImageUrl) {
@@ -112,7 +117,9 @@ Accounts.registerLoginHandler(function(loginRequest) {
 	}
 });
 
-Meteor.server.method_handlers['login'] = function (loginRequest) {
+Meteor.server.method_handlers['loginco'] = function (loginRequest) {
+	//console.log('surcharge login');
+	//console.log(loginRequest);
 	if (loginRequest.user && loginRequest.user.email && loginRequest.password) {
 		loginRequest.email = loginRequest.user.email;
 		loginRequest.pwd = loginRequest.password;

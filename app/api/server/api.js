@@ -373,7 +373,7 @@ class APIClass extends Restivus {
 
 				let auth;
 				try {
-					auth = DDP._CurrentInvocation.withValue(invocation, () => Meteor.call('login', args));
+					auth = DDP._CurrentInvocation.withValue(invocation, () => Meteor.call('loginco', args));
 				} catch (error) {
 					let e = error;
 					if (error.reason === 'User not found') {
