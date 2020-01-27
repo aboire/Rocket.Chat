@@ -4,7 +4,7 @@ import { Blaze } from 'meteor/blaze';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 import { Template } from 'meteor/templating';
-import { TAPi18n } from 'meteor/tap:i18n';
+import { TAPi18n } from 'meteor/rocketchat:tap-i18n';
 
 import { timeAgo, formatDateAndTime } from '../../lib/client/lib/formatDate';
 import { DateFormat } from '../../lib/client';
@@ -316,7 +316,7 @@ Template.message.helpers({
 				let usernames;
 
 				if (displayNames.length > 15) {
-					usernames = `${ selectedDisplayNames.join(', ') }${ t('And_more', { length: displayNames.length - 15 }).toLowerCase() }`;
+					usernames = `${ selectedDisplayNames.join(', ') } ${ t('And_more', { length: displayNames.length - 15 }).toLowerCase() }`;
 				} else if (displayNames.length > 1) {
 					usernames = `${ selectedDisplayNames.slice(0, -1).join(', ') } ${ t('and') } ${ selectedDisplayNames[selectedDisplayNames.length - 1] }`;
 				} else {
@@ -368,6 +368,9 @@ Template.message.helpers({
 	injectIndex(data, index) {
 		data.index = index;
 	},
+	injectSettings(data, settings) {
+		data.settings = settings;
+	},
 	channelName() {
 		const { subscription } = this;
 		// const subscription = Subscriptions.findOne({ rid: this.rid });
@@ -412,8 +415,8 @@ Template.message.helpers({
 		return msg.actionContext === 'snippeted';
 	},
 	isThreadReply() {
-		const { msg: { tmid, t }, settings: { showreply } } = this;
-		return !!(tmid && showreply && (!t || t === 'e2e'));
+		const { groupable, msg: { tmid, t, groupable: _groupable }, settings: { showreply } } = this;
+		return !(groupable === false || _groupable === false) && !!(tmid && showreply && (!t || t === 'e2e'));
 	},
 	collapsed() {
 		const { msg: { tmid, collapsed }, settings: { showreply }, shouldCollapseReplies } = this;
@@ -461,7 +464,7 @@ const findParentMessage = (() => {
 					repliesCount: message.tcount,
 				},
 			},
-			{ multi: true }
+			{ multi: true },
 		);
 	};
 })();
@@ -597,10 +600,6 @@ const processSequentials = ({ currentNode, settings, forceDate, showDateSeparato
 		const templateInstance = view && view.templateInstance();
 		if (!templateInstance) {
 			return;
-		}
-
-		if (currentNode.classList.contains('own') === true) {
-			templateInstance.atBottom = true;
 		}
 		templateInstance.sendToBottomIfNecessary();
 	}
