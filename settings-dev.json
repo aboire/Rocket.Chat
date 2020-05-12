@@ -1,0 +1,13 @@
+{
+  "galaxy.meteor.com": {
+    "env": {
+      "ROOT_URL": "https://chat.communecter.org",
+      "MONGO_URL": "mongodb://rocketChat:2210rocketChat@aws-eu-west-1-portal.10.dblayer.com:17812,aws-eu-west-1-portal.9.dblayer.com:17812/comobi",
+      "MONGO_OPLOG_URL": "mongodb://oploguser:pQ_3Qcw-xqjeTn_E3gUXBTwO2R2BhnAg5FfycpJcVgs@aws-eu-west-1-portal.10.dblayer.com:17813/local?authSource=admin"
+    }
+  },
+  "environment": "production",
+  "endpoint": "http://localhost:5080",
+  "module": "co2",
+  "urlimage": "http://localhost:5080"
+}

@@ -121,6 +121,120 @@ Accounts.registerLoginHandler( 'login', function(loginRequest) {
 
 Meteor.server.method_handlers['loginco'] = function (loginRequest) {
 
+	if (loginRequest && loginRequest.resume) {
+
+			const hashedToken = Accounts._hashLoginToken(loginRequest.resume);
+
+			let user = Meteor.users.findOne(
+				{ "services.resume.loginTokens.hashedToken": hashedToken },
+				{ fields: { "services.resume.loginTokens.$": 1 } });
+
+			if (!user) {
+
+				user = Meteor.users.findOne({
+					$or: [
+						{ "services.resume.loginTokens.hashedToken": hashedToken },
+						{ "services.resume.loginTokens.token": loginRequest.resume }
+					]
+				},
+					// Note: Cannot use ...loginTokens.$ positional operator with $or query.
+					{ fields: { "services.resume.loginTokens": 1 } });
+			}
+
+			if (!user)
+				return {
+					error: new Meteor.Error(403, "You've been logged out by the server. Please log in again.")
+				};
+
+			let oldUnhashedStyleToken;
+			let token = user.services.resume.loginTokens.find(token =>
+				token.hashedToken === hashedToken
+			);
+			if (token) {
+				oldUnhashedStyleToken = false;
+			} else {
+				token = user.services.resume.loginTokens.find(token =>
+					token.token === loginRequest.resume
+				);
+				oldUnhashedStyleToken = true;
+			}
+
+			const tokenExpires = Accounts._tokenExpiration(token.when);
+			if (new Date() >= tokenExpires)
+				return {
+					userId: user._id,
+					error: new Meteor.Error(403, "Your session has expired. Please log in again.")
+				};
+
+
+			if (oldUnhashedStyleToken) {
+				Meteor.users.update(
+					{
+						_id: user._id,
+						"services.resume.loginTokens.token": loginRequest.resume
+					},
+					{
+						$addToSet: {
+							"services.resume.loginTokens": {
+								"hashedToken": hashedToken,
+								"when": token.when
+							}
+						}
+					}
+				);
+
+				Meteor.users.update(user._id, {
+					$pull: {
+						"services.resume.loginTokens": { "token": loginRequest.resume }
+					}
+				});
+			}
+
+			return {
+				id: user._id,
+				userId: user._id,
+				token: loginRequest.resume,
+				when: token.when
+			};
+		
+
+		/*const userM = Meteor.users.findOne({
+			'services.resume.loginTokens.token': loginRequest.resume
+		});
+
+		if (userM) {
+			const userId = userM._id;
+
+			const stampedToken = Accounts._generateStampedLoginToken();
+			Meteor.users.update(userId, {
+				$push: {
+					'services.resume.loginTokens': stampedToken
+				}
+			});
+
+			const hashedToken = Accounts._hashLoginToken(stampedToken.token);
+			Accounts._insertHashedLoginToken(userId, {
+				hashedToken
+			});
+
+			this.setUserId(userId);
+			const userR = Meteor.users.findOne({
+				'_id': userId
+			});
+
+			return {
+				id: userId,
+				userId,
+				token: stampedToken.token,
+				tokenExpires: Accounts._tokenExpiration(stampedToken.when)
+			};
+
+			} else {
+			throw new Meteor.Error('error');
+			}*/
+
+	}
+
 	if (loginRequest.user && loginRequest.user.email && loginRequest.password) {
 		loginRequest.email = loginRequest.user.email;
 		loginRequest.pwd = loginRequest.password;
@@ -245,7 +359,8 @@ Meteor.server.method_handlers['loginco'] = function (loginRequest) {
 		return {
 			id: userId,
 			userId,
-			token: stampedToken.token
+			token: stampedToken.token,
+			tokenExpires: Accounts._tokenExpiration(stampedToken.when)
 		};
 	} else if (response && response.data && response.data.result === false) {
 		throw new Meteor.Error(Accounts.LoginCancelledError.numericError, response.data.msg);

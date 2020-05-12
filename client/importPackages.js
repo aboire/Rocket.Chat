@@ -110,3 +110,4 @@ import '../app/reactions/client';
 import '../app/livechat/client';
 import '../app/account-communecter/client/config.js';
 import '../app/meteor-autocomplete/client';
+import '../app/theme/client';
